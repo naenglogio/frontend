@@ -18,9 +18,13 @@ export function LoginPage() {
 
       <section className="flex flex-1 items-start justify-center bg-surface px-6 pt-10 pb-16 md:items-center md:py-12">
         <div className="w-full max-w-sm">
-          <h1 className="text-lg font-bold text-ink">로그인</h1>
-          <p className="mt-1 text-sm text-ink-muted">이메일로 로그인하고 냉장고를 확인해보세요</p>
-          <div className="mt-8">
+          {!done && (
+            <>
+              <h1 className="text-lg font-bold text-ink">로그인</h1>
+              <p className="mt-1 text-sm text-ink-muted">이메일로 로그인하고 냉장고를 확인해보세요</p>
+            </>
+          )}
+          <div className={done ? '' : 'mt-8'}>
             {done ? (
               <div className="flex flex-col items-center gap-2 py-6 text-center">
                 <p className="text-lg font-bold text-ink">로그인됐어요</p>

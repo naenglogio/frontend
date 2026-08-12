@@ -11,7 +11,7 @@ import {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CODE_PATTERN = /^\d{6}$/;
-const PASSWORD_PATTERN = /^(?=.*[^A-Za-z0-9]).{8,72}$/;
+const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{8,72}$/;
 
 const errorMessage = (error: unknown, fallback: string) =>
   error instanceof ApiError ? error.message : fallback;
@@ -26,6 +26,7 @@ export interface SignupFormProps {
   onRequestVerificationCode?: (email: string) => Promise<void>;
   onConfirmVerificationCode?: (email: string, code: string) => Promise<boolean>;
   onSignup?: (payload: SignupPayload) => Promise<void>;
+  onDone?: () => void;
 }
 
 type Step = 'email' | 'verify' | 'signup' | 'done';
@@ -36,6 +37,7 @@ export function SignupForm({
   onSignup = async (payload) => {
     await signup(payload);
   },
+  onDone,
 }: SignupFormProps) {
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
@@ -119,7 +121,7 @@ export function SignupForm({
   const handleSignup = async () => {
     const nextErrors: Record<string, string> = {};
     if (!PASSWORD_PATTERN.test(password)) {
-      nextErrors.password = '8자 이상 72자 이하, 특수문자를 포함해 입력해주세요.';
+      nextErrors.password = '8자 이상 72자 이하, 숫자와 특수문자를 포함해 입력해주세요.';
     }
     if (passwordConfirm !== password) {
       nextErrors.passwordConfirm = '비밀번호가 일치하지 않아요.';
@@ -136,6 +138,7 @@ export function SignupForm({
     try {
       await onSignup({ email, password, nickname });
       setStep('done');
+      onDone?.();
     } catch (error) {
       setError('signup', errorMessage(error, '회원가입에 실패했어요. 다시 시도해주세요.'));
     } finally {
@@ -227,7 +230,7 @@ export function SignupForm({
               id="password"
               type="password"
               label="비밀번호"
-              placeholder="8자 이상, 특수문자 포함"
+              placeholder="8자 이상, 숫자·특수문자 포함"
               value={password}
               onChange={(e) => handlePasswordChange(e.target.value)}
               error={errors.password}
