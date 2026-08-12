@@ -1,3 +1,39 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Primary — 하늘색 (brand) */
+  --color-primary-50: #f0f8fe;
+  --color-primary-100: #e1f1fd;
+  --color-primary-200: #c3e3fb;
+  --color-primary-300: #a5d5f9;
+  --color-primary-400: #87c7f4;
+  --color-primary-500: #6cb4ee;
+  --color-primary-600: #4b97d9;
+  --color-primary-700: #3a79b3;
+  --color-primary-800: #2c5d8c;
+  --color-primary-900: #1f4266;
+
+  /* Background / border */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f7f8fc;
+  --color-line: #e3e6f0;
+
+  /* Text */
+  --color-ink: #1a1d29;
+  --color-ink-soft: #4b4f5c;
+  --color-ink-muted: #9096a6;
+
+  /* Status — 식재료 신선도 표시용 (에러 텍스트 등 일반 UI에도 재사용 가능) */
+  --color-fresh: #4caf7d;
+  --color-warning: #f0a83c;
+  --color-danger: #e2574c;
+
+  /* Shape */
+  --radius-card: 20px;
+  --radius-input: 14px;
+  --shadow-soft: 0 4px 16px rgba(28, 32, 51, 0.06);
+
+  /* Type — 한글 렌더링 우선 시스템 폰트 스택 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
+    system-ui, sans-serif;
+}
