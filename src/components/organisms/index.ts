@@ -1,8 +1,14 @@
+export { ExpiringCard } from './ExpiringCard';
+export { FridgeCard } from './FridgeCard';
 export { IngredientCard } from './IngredientCard';
 export { IngredientList } from './IngredientList';
 export { IngredientStats } from './IngredientStats';
 export { LoginForm } from './LoginForm';
 export type { LoginFormProps } from './LoginForm';
 export { ProfileSettingsForm } from './ProfileSettingsForm';
+export { RecipeSection } from './RecipeSection';
+export { Sidebar } from './Sidebar';
 export { SignupForm } from './SignupForm';
 export type { SignupFormProps, SignupPayload } from './SignupForm';
+export { StatStrip } from './StatStrip';
+export { TopBar } from './TopBar';
