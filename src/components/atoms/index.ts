@@ -2,3 +2,8 @@ export { Button } from './Button';
 export { Checkbox } from './Checkbox';
 export { FridgeIllustration } from './FridgeIllustration';
 export { Input } from './Input';
+export { Modal } from './Modal';
+export { RankBadge } from './RankBadge';
+export { SegmentedControl } from './SegmentedControl';
+export { StatCard } from './StatCard';
+export { ToggleSwitch } from './ToggleSwitch';
