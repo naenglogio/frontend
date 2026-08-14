@@ -1,11 +1,17 @@
+export { Badge } from './Badge';
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
 export { DDayTag } from './DDayTag';
 export { FridgeIllustration } from './FridgeIllustration';
 export { FridgeSummary } from './FridgeSummary';
 export { Input } from './Input';
+export { Modal } from './Modal';
 export { NavIcon } from './NavIcon';
 export type { NavIconId } from './NavIcon';
+export { RankBadge } from './RankBadge';
 export { RecipeCard } from './RecipeCard';
 export type { RecipeCardData } from './RecipeCard';
+export { SegmentedControl } from './SegmentedControl';
+export { StatCard } from './StatCard';
 export { StatIcon } from './StatIcon';
+export { ToggleSwitch } from './ToggleSwitch';
