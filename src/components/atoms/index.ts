@@ -1,4 +1,11 @@
 export { Button } from './Button';
 export { Checkbox } from './Checkbox';
+export { DDayTag } from './DDayTag';
 export { FridgeIllustration } from './FridgeIllustration';
+export { FridgeSummary } from './FridgeSummary';
 export { Input } from './Input';
+export { NavIcon } from './NavIcon';
+export type { NavIconId } from './NavIcon';
+export { RecipeCard } from './RecipeCard';
+export type { RecipeCardData } from './RecipeCard';
+export { StatIcon } from './StatIcon';

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { FridgeIllustration } from '../atoms/FridgeIllustration';
 import { LoginForm } from '../organisms/LoginForm';
 
 export function LoginPage() {
+  const navigate = useNavigate();
   const [done, setDone] = useState(false);
 
   return (
@@ -31,7 +32,12 @@ export function LoginPage() {
                 <p className="text-sm text-ink-muted">냉로그를 시작해보세요.</p>
               </div>
             ) : (
-              <LoginForm onSuccess={() => setDone(true)} />
+              <LoginForm
+                onSuccess={() => {
+                  setDone(true);
+                  navigate('/mainpage', { replace: true });
+                }}
+              />
             )}
           </div>
           {!done && (
