@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
-import { LoginPage, ProfilePage, SignupPage } from './components/pages';
+import { IngredientListPage, LoginPage, ProfilePage, SignupPage } from './components/pages';
 import { RequireAuth } from './components/RequireAuth';
 
 function App() {
@@ -18,6 +18,7 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route path="/ingredients" element={<IngredientListPage />} />
       </Routes>
     </BrowserRouter>
   );
