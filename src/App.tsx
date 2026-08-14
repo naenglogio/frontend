@@ -18,7 +18,14 @@ function App() {
             </RequireAuth>
           }
         />
-        <Route path="/ingredients" element={<IngredientListPage />} />
+        <Route
+          path="/ingredients"
+          element={
+            <RequireAuth>
+              <IngredientListPage />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
