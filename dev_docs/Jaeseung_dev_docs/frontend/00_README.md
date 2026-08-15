@@ -9,6 +9,7 @@
 - **기존 `types/index.ts`는 건드리지 않는다.** (선영·우희 화면이 씀 — 바꾸면 그쪽 빌드가 깨짐)
 - storage_type은 int(0/1). 화면 표시는 `utils/storage.ts`의 `storageLabel`/`STORAGE_OPTIONS` 사용.
 - API 호출은 기존 `services/authApi.ts`의 fetch 래퍼·`ApiError` 패턴 재사용, prefix `/api/v1`.
+- **UI/디자인**: 기존 디자인 시스템을 따른다. `../shared/02_DESIGN_SYSTEM.md`의 Tailwind 토큰·기존 컴포넌트를 재사용하고, 임의 색·컴포넌트를 만들지 않는다. 각 화면 문서 하단의 'UI 명세'는 와이어프레임 기준이다.
 - **선개발 전략**: 백엔드 API가 아직이면 계약서(`00_API_CONTRACT.md`) 기준으로 목업 응답으로 먼저 만들고, BE 완료 시 base URL만 실서버로 전환.
 
 ## 테스크 목록

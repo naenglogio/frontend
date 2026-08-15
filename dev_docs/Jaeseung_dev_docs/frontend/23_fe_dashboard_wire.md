@@ -26,3 +26,11 @@ FE-1 완료. (BE-5, BE-6 완료면 실데이터, 아니면 목업)
 
 ## 완료 후
 `../shared/01_STATUS_BOARD.md`의 FE-5 → ✅.
+
+---
+
+## UI 명세 (와이어프레임 "내 프로필 / 홈 요약" 기준)
+> 기존 MainPage의 StatStrip/FridgeCard/ExpiringCard 컴포넌트를 그대로 쓰고 데이터만 실API로 교체. UI 구조 변경 없음.
+- 냉장고 현황: 총 식재료 수 / 만료 임박 수 (와이어프레임 "24 / 3" 형태)
+- 임박 목록: ExpiringItem 재사용, D-day 표시.
+- 새 컴포넌트 만들지 말 것 — 데이터 소스만 `getSummary()`로.
