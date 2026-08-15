@@ -1,0 +1,4 @@
+# 한 줄 = 한 export 인 순수 barrel 파일에만 union 적용.
+# 두 브랜치가 서로 다른 줄을 추가하면 충돌 마커 없이 자동 병합된다.
+# 적용 범위는 pages/index.ts 하나뿐 (atoms/molecules/organisms는 제외).
+src/components/pages/index.ts merge=union
