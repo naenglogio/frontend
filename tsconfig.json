@@ -1,5 +1,11 @@
 {
   "files": [],
+  "compilerOptions": {
+    /* IDE/루트 해석용 — 실제 앱 컴파일은 tsconfig.app.json paths 사용 */
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
