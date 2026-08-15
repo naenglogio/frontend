@@ -25,7 +25,7 @@
 | ID | 산출물 | 파일 | 상태 | 백엔드가 알아야 할 것 |
 |----|--------|------|:---:|----------------------|
 | FE-0 | 타입 정의 | types/models, types/features | ✅ | 계약서와 1:1. BE schema는 이 타입에 맞춤 |
-| FE-1 | API 클라이언트 | services/ingredientApi.ts | ⬜ | 계약서 경로/타입대로 호출 |
+| FE-1 | API 클라이언트 | services/ingredientApi.ts | ✅ | 계약서 경로/타입대로 호출 |
 | FE-2 | 상세 화면 | pages/IngredientDetailPage | ⬜ | BE-3 필요 |
 | FE-3 | 등록 화면 | pages/IngredientCreatePage | ⬜ | BE-4 필요 |
 | FE-4 | 카메라 인식 화면 | pages/RecognizePage | ⬜ | BE-7 필요 |
