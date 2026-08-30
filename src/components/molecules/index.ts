@@ -1,4 +1,5 @@
 export { ExpiringItem } from './ExpiringItem';
+export { MartListItem } from './MartListItem';
 export { NavItem } from './NavItem';
 export { SearchInput } from './SearchInput';
 export { SortFilter } from './SortFilter';

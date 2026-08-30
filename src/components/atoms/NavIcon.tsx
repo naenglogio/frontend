@@ -1,4 +1,4 @@
-export type NavIconId = 'home' | 'fridge' | 'ingredients' | 'recipes' | 'stats';
+export type NavIconId = 'home' | 'fridge' | 'ingredients' | 'map' | 'recipes' | 'stats';
 
 interface NavIconProps {
   id: NavIconId;
@@ -35,6 +35,13 @@ export function NavIcon({ id, className = 'h-[19px] w-[19px]' }: NavIconProps) {
       return (
         <svg {...common}>
           <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
+        </svg>
+      );
+    case 'map':
+      return (
+        <svg {...common}>
+          <path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z" />
+          <circle cx="12" cy="10" r="2.5" />
         </svg>
       );
     case 'recipes':

@@ -2,10 +2,11 @@ import { FridgeIllustration } from '../atoms/FridgeIllustration';
 import { NavItem } from '../molecules/NavItem';
 import type { NavIconId } from '../atoms/NavIcon';
 
-const NAV_ITEMS: { id: NavIconId; label: string }[] = [
+const NAV_ITEMS: { id: NavIconId; label: string; to?: string }[] = [
   { id: 'home', label: '홈' },
   { id: 'fridge', label: '3D 냉장고' },
   { id: 'ingredients', label: '재료 목록' },
+  { id: 'map', label: '지도', to: '/searchmap' },
   { id: 'recipes', label: '레시피' },
   { id: 'stats', label: '통계' },
 ];
@@ -33,7 +34,13 @@ export function Sidebar({ userName, initial }: SidebarProps) {
         aria-label="주요 메뉴"
       >
         {NAV_ITEMS.map((item) => (
-          <NavItem key={item.id} icon={item.id} label={item.label} active={item.id === 'home'} />
+          <NavItem
+            key={item.id}
+            icon={item.id}
+            label={item.label}
+            active={item.id === 'home'}
+            to={item.to}
+          />
         ))}
       </nav>
 
