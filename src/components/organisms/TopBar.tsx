@@ -1,4 +1,6 @@
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../atoms/Button';
+import { NotificationPanel } from './NotificationPanel';
 
 interface TopBarProps {
   userName: string;
@@ -6,6 +8,29 @@ interface TopBarProps {
 }
 
 export function TopBar({ userName, expiringCount }: TopBarProps) {
+  const [notifOpen, setNotifOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+
+    function handlePointerDown(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setNotifOpen(false);
+    }
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [notifOpen]);
+
   return (
     <header className="mb-[30px] flex flex-col items-start justify-between gap-3.5 sm:flex-row sm:items-center">
       <div>
@@ -17,23 +42,33 @@ export function TopBar({ userName, expiringCount }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          aria-label="알림"
-          className="relative grid h-[42px] w-[42px] place-items-center rounded-xl border border-line bg-surface text-ink-soft shadow-soft transition hover:border-primary-200 hover:shadow-[--shadow-soft]"
-        >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
-            <path
-              d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" strokeWidth="2" />
-          </svg>
-          <span className="absolute top-[9px] right-2.5 h-2 w-2 rounded-full border-2 border-surface bg-danger" />
-        </button>
+        <div ref={wrapperRef} className="relative">
+          <button
+            type="button"
+            aria-label="알림"
+            aria-expanded={notifOpen}
+            onClick={() => setNotifOpen((prev) => !prev)}
+            className="relative grid h-[42px] w-[42px] place-items-center rounded-xl border border-line bg-surface text-ink-soft shadow-soft transition hover:border-primary-200 hover:shadow-[--shadow-soft]"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+              <path
+                d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="currentColor" strokeWidth="2" />
+            </svg>
+            <span className="absolute top-[9px] right-2.5 h-2 w-2 rounded-full border-2 border-surface bg-danger" />
+          </button>
+
+          {notifOpen && (
+            <div className="absolute top-[calc(100%+10px)] right-0 z-50">
+              <NotificationPanel />
+            </div>
+          )}
+        </div>
 
         <Button className="inline-flex h-[42px] items-center gap-2 px-5 py-0">
           <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" aria-hidden="true">

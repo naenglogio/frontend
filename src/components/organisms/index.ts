@@ -7,6 +7,7 @@ export { LoginForm } from './LoginForm';
 export type { LoginFormProps } from './LoginForm';
 export { MartResultList } from './MartResultList';
 export { NearbyMartMap } from './NearbyMartMap';
+export { NotificationPanel } from './NotificationPanel';
 export { ProfileSettingsForm } from './ProfileSettingsForm';
 export { RecipeSection } from './RecipeSection';
 export { Sidebar } from './Sidebar';
