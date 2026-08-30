@@ -7,7 +7,7 @@ const NAV_ITEMS: { id: NavIconId; label: string; to?: string }[] = [
   { id: 'fridge', label: '3D 냉장고' },
   { id: 'ingredients', label: '재료 목록' },
   { id: 'map', label: '지도', to: '/searchmap' },
-  { id: 'recipes', label: '레시피' },
+  { id: 'recipes', label: '레시피', to: '/recipes' },
   { id: 'stats', label: '통계' },
 ];
 

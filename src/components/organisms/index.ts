@@ -9,6 +9,7 @@ export { MartResultList } from './MartResultList';
 export { NearbyMartMap } from './NearbyMartMap';
 export { NotificationPanel } from './NotificationPanel';
 export { ProfileSettingsForm } from './ProfileSettingsForm';
+export { RecipeRecommendList } from './RecipeRecommendList';
 export { RecipeSection } from './RecipeSection';
 export { Sidebar } from './Sidebar';
 export { SignupForm } from './SignupForm';
