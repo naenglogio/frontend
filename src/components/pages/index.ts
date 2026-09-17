@@ -1,3 +1,5 @@
+export { IngredientCreatePage } from './IngredientCreatePage';
+export type { IngredientCreatePrefill } from './IngredientCreatePage';
 export { IngredientDetailPage } from './IngredientDetailPage';
 export { IngredientListPage } from './IngredientListPage';
 export { LoginPage } from './LoginPage';

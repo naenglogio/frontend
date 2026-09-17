@@ -10,11 +10,14 @@ interface ApiErrorBody {
 export class ApiError extends Error {
   code: string;
   status: number;
+  /** 422 등 필드별 검증 상세. 로그인 로직은 그대로 두고, 등록 화면 등이 필드 에러 표시에 사용 */
+  details?: unknown;
 
   constructor(status: number, body: ApiErrorBody) {
     super(body.message);
     this.code = body.code;
     this.status = status;
+    this.details = body.details;
   }
 }
 

@@ -30,7 +30,7 @@
 | FE-0 | 타입 정의        | types/models, types/features |  ✅  | 계약서와 1:1. BE schema는 이 타입에 맞춤 |
 | FE-1 | API 클라이언트   | services/ingredientApi.ts    |  ✅  | 계약서 경로/타입대로 호출                |
 | FE-2 | 상세 화면        | pages/IngredientDetailPage   |  ✅  | BE-3 실연동 완료. 수정/삭제 API는 계약 없어 UI만 |
-| FE-3 | 등록 화면        | pages/IngredientCreatePage   |  ⬜  | BE-4 필요                                |
+| FE-3 | 등록 화면        | pages/IngredientCreatePage   |  ✅  | BE-4 실연동. FE-4 프리필(name/category/food_id) 대응 |
 | FE-4 | 카메라 인식 화면 | pages/RecognizePage          |  ⬜  | BE-7 필요                                |
 | FE-5 | 대시보드 실연동  | homeApi.ts, MainPage         |  ⬜  | BE-5 필요                                |
 | FE-6 | 3D 냉장고        | MainPage 내 컴포넌트         |  ⬜  | BE-3 필요                                |

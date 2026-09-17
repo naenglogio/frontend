@@ -4,6 +4,7 @@ import { RequireAuth } from '../components/RequireAuth';
 import {
   MainPage,
   IngredientListPage,
+  IngredientCreatePage,
   IngredientDetailPage,
   SearchMapPage,
   RecipeRecommendPage,
@@ -12,6 +13,9 @@ import {
 /**
  * 재성 담당 — 식재료/홈 라우트.
  * 새 라우트(상세/등록/스캔/3D 등)는 App.tsx가 아니라 이 파일에만 추가한다.
+ *
+ * 주의: `/ingredients/new` 는 `/ingredients/:id` 보다 위에 둬야
+ * "new"가 id로 매칭되지 않는다.
  */
 export const ingredientRoutes: RouteObject[] = [
   { path: '/mainpage', element: <MainPage /> },
@@ -20,6 +24,14 @@ export const ingredientRoutes: RouteObject[] = [
     element: (
       <RequireAuth>
         <IngredientListPage />
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/ingredients/new',
+    element: (
+      <RequireAuth>
+        <IngredientCreatePage />
       </RequireAuth>
     ),
   },
@@ -47,5 +59,5 @@ export const ingredientRoutes: RouteObject[] = [
       </RequireAuth>
     ),
   },
-  // 새 라우트(등록/스캔/3D 등)는 이 파일에만 추가한다.
+  // 새 라우트(스캔/3D 등)는 이 파일에만 추가한다.
 ];
