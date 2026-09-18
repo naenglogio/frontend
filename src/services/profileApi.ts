@@ -9,13 +9,17 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // TODO: 백엔드 내정보 API 완성되면 이 파일 전체를 실제 fetch 호출로 교체
 
 export interface ProfileInfo {
+  nickname: string;
   email: string;
   notificationAgreed: boolean;
+  notificationDaysBefore: number;
 }
 
 const mockProfile: ProfileInfo = {
+  nickname: '우희',
   email: 'songwoohee@naver.com',
   notificationAgreed: true,
+  notificationDaysBefore: 3,
 };
 
 export async function fetchProfile(): Promise<ProfileInfo> {
@@ -27,6 +31,49 @@ export async function updateNotificationPreference(agreed: boolean): Promise<voi
   await wait(300);
   mockProfile.notificationAgreed = agreed;
   console.info('[mock] 알림 동의 변경', agreed);
+}
+
+export async function updateNickname(nickname: string): Promise<void> {
+  await wait(300);
+  mockProfile.nickname = nickname;
+}
+
+export async function updateNotificationDaysBefore(days: number): Promise<void> {
+  await wait(300);
+  mockProfile.notificationDaysBefore = days;
+}
+
+export interface FridgeOverview {
+  storedCount: number;
+  expiringCount: number;
+  addedThisMonth: number;
+  oldestIngredient: { name: string; storedDays: number } | null;
+  wasteRateGoal: number;
+  currentWasteRate: number;
+}
+
+const mockFridgeOverview: FridgeOverview = {
+  storedCount: 18,
+  expiringCount: 3,
+  addedThisMonth: 12,
+  oldestIngredient: { name: '두부', storedDays: 9 },
+  wasteRateGoal: 10,
+  currentWasteRate: 8,
+};
+
+export async function fetchFridgeOverview(): Promise<FridgeOverview> {
+  await wait(350);
+  return { ...mockFridgeOverview };
+}
+
+export async function updateWasteRateGoal(goal: number): Promise<void> {
+  await wait(300);
+  mockFridgeOverview.wasteRateGoal = goal;
+}
+
+export async function deleteAccount(): Promise<void> {
+  await wait(500);
+  console.info('[mock] 회원 탈퇴 요청');
 }
 
 export interface ChangePasswordPayload {

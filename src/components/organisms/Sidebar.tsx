@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { FridgeIllustration } from '../atoms/FridgeIllustration';
 import { NavItem } from '../molecules/NavItem';
 import type { NavIconId } from '../atoms/NavIcon';
@@ -45,7 +46,11 @@ export function Sidebar({ userName, initial }: SidebarProps) {
       </nav>
 
       <div className="ml-auto lg:mt-auto lg:ml-0 lg:pt-[18px]">
-        <div className="flex items-center gap-[11px] rounded-xl bg-white/15 px-3 py-[11px]">
+        <Link
+          to="/profile"
+          aria-label={`${userName}님의 프로필로 이동`}
+          className="flex items-center gap-[11px] rounded-xl bg-white/15 px-3 py-[11px] transition-colors hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
           <span className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full bg-surface text-sm font-bold text-primary-700">
             {initial}
           </span>
@@ -53,7 +58,7 @@ export function Sidebar({ userName, initial }: SidebarProps) {
             <p className="text-[13px] font-semibold">{userName}</p>
             <p className="text-[11.5px] text-white/65">내 냉장고</p>
           </div>
-        </div>
+        </Link>
       </div>
     </aside>
   );

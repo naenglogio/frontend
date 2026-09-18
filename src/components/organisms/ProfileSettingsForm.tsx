@@ -1,39 +1,21 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { Button } from '../atoms/Button';
 import { Input } from '../atoms/Input';
 import { Modal } from '../atoms/Modal';
-import { ToggleSwitch } from '../atoms/ToggleSwitch';
-import { changePassword, fetchProfile, updateNotificationPreference } from '../../services/profileApi';
 import { ApiError } from '../../services/authApi';
+import { changePassword, fetchProfile, updateNickname } from '../../services/profileApi';
+import { clearAccessToken } from '../../utils/authToken';
 
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{8,72}$/;
 
-function BellIcon({ active }: { active: boolean }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill={active ? 'currentColor' : 'none'}
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M6 8a6 6 0 0 1 12 0c0 3.5 1 5.5 2 7H4c1-1.5 2-3.5 2-7Z" />
-      <path d="M9.5 19a2.5 2.5 0 0 0 5 0" />
-    </svg>
-  );
-}
-
 export function ProfileSettingsForm() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [notificationAgreed, setNotificationAgreed] = useState(false);
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [notificationSaving, setNotificationSaving] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-
+  const [nickname, setNickname] = useState('');
+  const [nicknameSaving, setNicknameSaving] = useState(false);
+  const [nicknameSaved, setNicknameSaved] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
@@ -44,8 +26,7 @@ export function ProfileSettingsForm() {
   useEffect(() => {
     fetchProfile().then((profile) => {
       setEmail(profile.email);
-      setNotificationAgreed(profile.notificationAgreed);
-      setProfileLoading(false);
+      setNickname(profile.nickname);
     });
   }, []);
 
@@ -58,58 +39,24 @@ export function ProfileSettingsForm() {
       return next;
     });
 
-  const applyNotificationChange = async (checked: boolean) => {
-    setNotificationAgreed(checked);
-    setNotificationSaving(true);
+  const saveNickname = async () => {
+    const trimmed = nickname.trim();
+    if (!trimmed) return;
+    setNicknameSaving(true);
+    setNicknameSaved(false);
     try {
-      await updateNotificationPreference(checked);
+      await updateNickname(trimmed);
+      setNickname(trimmed);
+      setNicknameSaved(true);
     } finally {
-      setNotificationSaving(false);
+      setNicknameSaving(false);
     }
   };
 
-  const handleToggleRequest = (next: boolean) => {
-    if (next) {
-      setConfirmOpen(true);
-    } else {
-      applyNotificationChange(false);
-    }
-  };
-
-  const handleConfirmEnable = () => {
-    setConfirmOpen(false);
-    applyNotificationChange(true);
-  };
-
-  const handleNewPasswordChange = (value: string) => {
-    setNewPassword(value);
-    if (!newPasswordConfirm) return;
-    if (value !== newPasswordConfirm) {
-      setPasswordError('newPasswordConfirm', '비밀번호가 일치하지 않아요.');
-    } else {
-      clearPasswordError('newPasswordConfirm');
-    }
-  };
-
-  const handleNewPasswordConfirmChange = (value: string) => {
-    setNewPasswordConfirm(value);
-    if (!value) {
-      clearPasswordError('newPasswordConfirm');
-      return;
-    }
-    if (value !== newPassword) {
-      setPasswordError('newPasswordConfirm', '비밀번호가 일치하지 않아요.');
-    } else {
-      clearPasswordError('newPasswordConfirm');
-    }
-  };
-
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleChangePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
     const nextErrors: Record<string, string> = {};
-    if (!currentPassword) {
-      nextErrors.currentPassword = '현재 비밀번호를 입력해주세요.';
-    }
+    if (!currentPassword) nextErrors.currentPassword = '현재 비밀번호를 입력해주세요.';
     if (!PASSWORD_PATTERN.test(newPassword)) {
       nextErrors.newPassword = '8자 이상 72자 이하, 숫자와 특수문자를 포함해 입력해주세요.';
     }
@@ -120,6 +67,7 @@ export function ProfileSettingsForm() {
       setPasswordErrors(nextErrors);
       return;
     }
+
     setPasswordErrors({});
     setPasswordPending(true);
     setPasswordSuccess(false);
@@ -145,29 +93,23 @@ export function ProfileSettingsForm() {
   };
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex items-center justify-between gap-3 rounded-input bg-primary-50 p-4">
-        <div className="flex items-center gap-3">
-          <span
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-              notificationAgreed ? 'bg-primary-500 text-white' : 'bg-primary-100 text-primary-600'
-            }`}
-          >
-            <BellIcon active={notificationAgreed} />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-ink">유통기한 알림</p>
-            <p className="text-xs text-ink-muted">재료가 상하기 전에 알려드릴게요</p>
-          </div>
-        </div>
-        <ToggleSwitch
-          id="notificationAgreed"
-          checked={notificationAgreed}
-          onChange={handleToggleRequest}
-          disabled={profileLoading || notificationSaving}
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <Input
+          id="nickname"
+          label="닉네임"
+          value={nickname}
+          maxLength={20}
+          onChange={(event) => {
+            setNickname(event.target.value);
+            setNicknameSaved(false);
+          }}
         />
+        <Button type="button" variant="secondary" loading={nicknameSaving} onClick={() => void saveNickname()}>
+          저장
+        </Button>
       </div>
-
+      {nicknameSaved && <p className="-mt-4 text-xs text-fresh">닉네임을 저장했어요.</p>}
       <Input id="email" label="이메일" value={email} disabled />
 
       <div className="border-t border-line pt-5">
@@ -178,29 +120,34 @@ export function ProfileSettingsForm() {
             type="password"
             label="현재 비밀번호"
             value={currentPassword}
-            onChange={(e) => {
-              setCurrentPassword(e.target.value);
+            onChange={(event) => {
+              setCurrentPassword(event.target.value);
               clearPasswordError('currentPassword');
             }}
             error={passwordErrors.currentPassword}
           />
-          <Input
-            id="newPassword"
-            type="password"
-            label="새 비밀번호"
-            placeholder="8자 이상, 숫자·특수문자 포함"
-            value={newPassword}
-            onChange={(e) => handleNewPasswordChange(e.target.value)}
-            error={passwordErrors.newPassword}
-          />
-          <Input
-            id="newPasswordConfirm"
-            type="password"
-            label="새 비밀번호 확인"
-            value={newPasswordConfirm}
-            onChange={(e) => handleNewPasswordConfirmChange(e.target.value)}
-            error={passwordErrors.newPasswordConfirm}
-          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              id="newPassword"
+              type="password"
+              label="새 비밀번호"
+              placeholder="숫자·특수문자 포함"
+              value={newPassword}
+              onChange={(event) => {
+                setNewPassword(event.target.value);
+                clearPasswordError('newPassword');
+              }}
+              error={passwordErrors.newPassword}
+            />
+            <Input
+              id="newPasswordConfirm"
+              type="password"
+              label="새 비밀번호 확인"
+              value={newPasswordConfirm}
+              onChange={(event) => setNewPasswordConfirm(event.target.value)}
+              error={passwordErrors.newPasswordConfirm}
+            />
+          </div>
           {passwordSuccess && <p className="text-xs text-fresh">비밀번호가 변경됐어요.</p>}
           <Button type="submit" variant="secondary" loading={passwordPending} className="self-start">
             비밀번호 변경
@@ -208,27 +155,31 @@ export function ProfileSettingsForm() {
         </form>
       </div>
 
-      <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100 text-primary-600">
-            <BellIcon active />
-          </span>
-          <p className="text-base font-bold text-ink">알림을 받으시겠어요?</p>
-          <p className="text-sm text-ink-muted">
-            유통기한이 임박한 재료가 있으면 <br /> 재료가 상하기 전에 알려드릴게요.
-          </p>
+      <div className="flex items-center justify-between gap-3 border-t border-line pt-5">
+        <div>
+          <p className="text-sm font-semibold text-ink">로그아웃</p>
+          <p className="mt-1 text-xs text-ink-muted">현재 기기에서 로그아웃합니다.</p>
         </div>
+        <Button type="button" variant="secondary" onClick={() => setLogoutOpen(true)}>
+          로그아웃
+        </Button>
+      </div>
+
+      <Modal open={logoutOpen} onClose={() => setLogoutOpen(false)}>
+        <p className="text-center text-base font-bold text-ink">로그아웃하시겠어요?</p>
         <div className="mt-5 flex gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            className="flex-1"
-            onClick={() => setConfirmOpen(false)}
-          >
+          <Button type="button" variant="secondary" className="flex-1" onClick={() => setLogoutOpen(false)}>
             취소
           </Button>
-          <Button type="button" className="flex-1" onClick={handleConfirmEnable}>
-            확인
+          <Button
+            type="button"
+            className="flex-1"
+            onClick={() => {
+              clearAccessToken();
+              navigate('/login', { replace: true });
+            }}
+          >
+            로그아웃
           </Button>
         </div>
       </Modal>
