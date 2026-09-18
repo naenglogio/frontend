@@ -1,3 +1,9 @@
+import { ApiError } from './authApi';
+import { getAccessToken } from '../utils/authToken';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const API_PREFIX = '/api/v1';
+
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // TODO: 백엔드 내정보 API 완성되면 이 파일 전체를 실제 fetch 호출로 교체
@@ -29,11 +35,29 @@ export interface ChangePasswordPayload {
 }
 
 export async function changePassword(payload: ChangePasswordPayload): Promise<void> {
-  await wait(500);
-  console.info('[mock] 비밀번호 변경 요청', {
-    currentPasswordLength: payload.currentPassword.length,
-    newPasswordLength: payload.newPassword.length,
+  const token = getAccessToken();
+  const response = await fetch(`${API_BASE_URL}${API_PREFIX}/profile/password`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({
+      current_password: payload.currentPassword,
+      new_password: payload.newPassword,
+    }),
   });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      code?: string;
+      message?: string;
+    } | null;
+    throw new ApiError(response.status, {
+      code: body?.code ?? 'UNKNOWN',
+      message: body?.message ?? `요청에 실패했어요 (${response.status})`,
+    });
+  }
 }
 
 export type StatsPeriod = '3d' | '7d' | '10d' | '15d' | '30d';

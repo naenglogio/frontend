@@ -8,3 +8,4 @@ export { ProfilePage } from './ProfilePage';
 export { RecipeRecommendPage } from './RecipeRecommendPage';
 export { SearchMapPage } from './SearchMapPage';
 export { SignupPage } from './SignupPage';
+export { PasswordResetPage } from './PasswordResetPage';

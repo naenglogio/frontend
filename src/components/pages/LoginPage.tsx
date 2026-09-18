@@ -41,15 +41,23 @@ export function LoginPage() {
             )}
           </div>
           {!done && (
-            <p className="mt-6 text-center text-sm text-ink-muted">
-              계정이 없으신가요?{' '}
+            <div className="mt-6 flex flex-col items-center gap-3 text-sm">
               <Link
-                to="/signup"
-                className="font-semibold text-primary-600 hover:text-primary-700"
+                to="/password-reset"
+                className="font-semibold text-ink-soft hover:text-primary-600"
               >
-                회원가입
+                비밀번호를 잊으셨나요?
               </Link>
-            </p>
+              <p className="text-ink-muted">
+                계정이 없으신가요?{' '}
+                <Link
+                  to="/signup"
+                  className="font-semibold text-primary-600 hover:text-primary-700"
+                >
+                  회원가입
+                </Link>
+              </p>
+            </div>
           )}
         </div>
       </section>

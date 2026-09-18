@@ -4,6 +4,7 @@ import { Input } from '../atoms/Input';
 import { Modal } from '../atoms/Modal';
 import { ToggleSwitch } from '../atoms/ToggleSwitch';
 import { changePassword, fetchProfile, updateNotificationPreference } from '../../services/profileApi';
+import { ApiError } from '../../services/authApi';
 
 const PASSWORD_PATTERN = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{8,72}$/;
 
@@ -128,8 +129,16 @@ export function ProfileSettingsForm() {
       setCurrentPassword('');
       setNewPassword('');
       setNewPasswordConfirm('');
-    } catch {
-      setPasswordError('currentPassword', '비밀번호 변경에 실패했어요. 다시 시도해주세요.');
+    } catch (error) {
+      if (error instanceof ApiError && error.code === 'CURRENT_PASSWORD_MISMATCH') {
+        setPasswordError('currentPassword', '현재 비밀번호를 다시 확인해주세요.');
+      } else if (error instanceof ApiError && error.status === 401) {
+        setPasswordError('currentPassword', '로그인이 만료됐어요. 다시 로그인해주세요.');
+      } else if (error instanceof ApiError && error.status === 422) {
+        setPasswordError('newPassword', '새 비밀번호 형식을 확인해주세요.');
+      } else {
+        setPasswordError('currentPassword', '비밀번호 변경에 실패했어요. 다시 시도해주세요.');
+      }
     } finally {
       setPasswordPending(false);
     }

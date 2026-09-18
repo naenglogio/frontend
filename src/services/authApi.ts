@@ -85,3 +85,26 @@ export interface LoginResponse {
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
   return postJson<LoginResponse>('/users/login', payload);
 }
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  await postJson<void>('/users/password-resets', { email });
+}
+
+export async function confirmPasswordReset(email: string, code: string): Promise<boolean> {
+  const result = await postJson<{ verified: boolean }>('/users/password-resets/confirm', {
+    email,
+    code,
+  });
+  return result.verified;
+}
+
+export interface PasswordResetCompleteRequest {
+  email: string;
+  new_password: string;
+}
+
+export async function completePasswordReset(
+  payload: PasswordResetCompleteRequest,
+): Promise<void> {
+  await postJson<void>('/users/password-resets/complete', payload);
+}
