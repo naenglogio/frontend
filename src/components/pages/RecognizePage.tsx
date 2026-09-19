@@ -7,23 +7,22 @@
  * 흐름:
  * 1) 모드 선택(바코드 / 영수증 / 사진)
  * 2) 웹캠 프리뷰 또는 앨범 업로드 → 미리보기
- * 3) recognize(image) 호출 (BE-7 미완이면 모드별 목업 폴백)
+ * 3) recognize(image, mode) 호출 — multipart 에 image + mode(탭값) 전송
  * 4) 후보 선택 → /ingredients/new 로 food_id/name/category 프리필 전달 (FE-3)
  *
- * 디자인: 기존 토큰·Button/Input/SegmentedControl 재사용 (02_DESIGN_SYSTEM.md)
+ * 디자인: 기존 토큰·Button/SegmentedControl 재사용 (02_DESIGN_SYSTEM.md)
  */
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '../atoms/Button';
-import { Input } from '../atoms/Input';
 import { SegmentedControl } from '../atoms/SegmentedControl';
 import { ApiError } from '../../services/authApi';
 import { recognize } from '../../services/ingredientApi';
 import type { IngredientCreatePrefill } from './IngredientCreatePage';
-import type { RecognitionCandidate } from '../../types/features';
+import type { RecognitionCandidate, RecognizeMode } from '../../types/features';
 
-/** 스캔 모드 — 세 탭 모두 촬영·업로드·인식 UI를 제공 */
-type ScanMode = 'barcode' | 'receipt' | 'photo';
+/** 스캔 모드 = API multipart `mode` 와 동일 (barcode / receipt / photo) */
+type ScanMode = RecognizeMode;
 
 /** SegmentedControl 옵션 (와이어프레임: 바코드 / 영수증 / 사진) */
 const MODE_OPTIONS: { value: ScanMode; label: string }[] = [
@@ -59,27 +58,6 @@ const MODE_COPY: Record<
   },
 };
 
-/**
- * BE-7(인식 API) 미완·호출 실패 시 쓰는 모드별 목업 후보.
- * 계약 형태(RecognitionCandidate)와 동일하게 맞춰 등록 프리필로 바로 넘길 수 있다.
- */
-const MOCK_BY_MODE: Record<ScanMode, RecognitionCandidate[]> = {
-  barcode: [
-    { food_id: 1, name: '서울우유 900ml', category: '유제품', confidence: 0.95 },
-    { food_id: 3, name: '매일우유 저지방', category: '유제품', confidence: 0.68 },
-  ],
-  receipt: [
-    { food_id: 4, name: '계란 30구', category: '유제품·달걀', confidence: 0.88 },
-    { food_id: 5, name: '배추 1포기', category: '채소', confidence: 0.76 },
-    { food_id: 1, name: '서울우유 900ml', category: '유제품', confidence: 0.61 },
-  ],
-  photo: [
-    { food_id: 1, name: '서울우유 900ml', category: '유제품', confidence: 0.92 },
-    { food_id: 2, name: '저지방 우유', category: '유제품', confidence: 0.71 },
-    { food_id: null, name: '흰 우유', category: '유제품', confidence: 0.45 },
-  ],
-};
-
 /** API confidence(0~1) → 화면 뱃지용 퍼센트 */
 function confidencePercent(confidence: number): number {
   return Math.round(Math.min(1, Math.max(0, confidence)) * 100);
@@ -109,15 +87,11 @@ export function RecognizePage() {
   const [cameraReady, setCameraReady] = useState(false); // 메타데이터까지 준비되어 촬영 가능
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); // object URL (해제 필요)
   const [imageFile, setImageFile] = useState<File | null>(null); // recognize() 에 넘길 원본
-  /** 바코드 전용: 이미지 없이 번호만으로도 검수 단계 진입 */
-  const [barcodeManual, setBarcodeManual] = useState('');
 
   const [recognizing, setRecognizing] = useState(false);
   const [candidates, setCandidates] = useState<RecognitionCandidate[] | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  /** true 면 서버 대신 목업을 쓴 상태 — 안내 문구 색(warning) 구분용 */
-  const [usedMock, setUsedMock] = useState(false);
 
   const copy = MODE_COPY[mode];
 
@@ -140,8 +114,6 @@ export function RecognizePage() {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
-    setBarcodeManual('');
-    setUsedMock(false);
 
     /** getUserMedia — user(웹캠) 실패 시 제약 없는 video 로 폴백 */
     async function requestStream(): Promise<MediaStream> {
@@ -248,7 +220,6 @@ export function RecognizePage() {
     setCandidates(null);
     setSelectedIndex(null);
     setErrorMessage(null);
-    setUsedMock(false);
   }
 
   /** 현재 video 프레임을 canvas → JPEG File 로 캡처 */
@@ -288,9 +259,9 @@ export function RecognizePage() {
   }
 
   /**
-   * 이미지 인식 — 세 모드 공통.
-   * 계약상 엔드포인트는 POST /ingredients/recognitions (multipart image).
-   * 바코드/영수증 전용 BE 가 아직 없으므로 동일 API + 모드별 목업 폴백.
+   * 이미지 인식 — 세 모드 공통 엔드포인트.
+   * POST /ingredients/recognitions (multipart: image + mode).
+   * 현재 탭(mode)을 그대로 넘겨 바코드/영수증/사진별 서버 분기.
    */
   async function handleRecognize() {
     if (!imageFile) {
@@ -301,52 +272,24 @@ export function RecognizePage() {
     setErrorMessage(null);
     setCandidates(null);
     setSelectedIndex(null);
-    setUsedMock(false);
 
     try {
-      const res = await recognize(imageFile);
+      // 탭이 barcode 이면 mode=barcode — 빼면 서버가 photo 기본값(후보 다수)을 씀
+      const res = await recognize(imageFile, mode);
       const list = res.candidates ?? [];
       setCandidates(list);
       if (list.length > 0) setSelectedIndex(0);
     } catch (error: unknown) {
-      // BE-7 미완·네트워크 오류 시에도 등록 연결 UX 를 검증할 수 있게 목업 사용
-      setUsedMock(true);
-      const mock = MOCK_BY_MODE[mode];
-      setCandidates(mock);
-      setSelectedIndex(0);
+      setCandidates(null);
+      setSelectedIndex(null);
       if (error instanceof ApiError) {
-        setErrorMessage(`서버 인식 대신 목업 결과를 표시해요. (${error.message})`);
+        setErrorMessage(error.message || '인식에 실패했어요. 다시 시도해주세요.');
       } else {
-        setErrorMessage('서버 인식 대신 목업 결과를 표시해요.');
+        setErrorMessage('인식에 실패했어요. 네트워크 상태를 확인하고 다시 시도해주세요.');
       }
     } finally {
       setRecognizing(false);
     }
-  }
-
-  /**
-   * 바코드 번호 수동 조회.
-   * 실물 스캐너/디코더 API 가 없을 때 UI 흐름(검수 → 등록)을 이어가기 위한 선개발용.
-   */
-  function handleBarcodeManualLookup() {
-    const code = barcodeManual.trim();
-    if (!code) {
-      setErrorMessage('바코드 번호를 입력해주세요.');
-      return;
-    }
-    setErrorMessage(null);
-    setUsedMock(true);
-    const mock: RecognitionCandidate[] = [
-      {
-        food_id: 1,
-        name: `바코드 ${code}`,
-        category: '스캔 상품',
-        confidence: 0.9,
-      },
-      ...MOCK_BY_MODE.barcode,
-    ];
-    setCandidates(mock);
-    setSelectedIndex(0);
   }
 
   /** 선택 후보를 FE-3 등록 화면으로 넘김 (확인 후 추가 / 수정 동일 이동, 등록 폼에서 수정 가능) */
@@ -455,29 +398,6 @@ export function RecognizePage() {
           />
         </section>
 
-        {/* 바코드 탭 전용: 번호 직접 입력 */}
-        {mode === 'barcode' && (
-          <section className="mt-4 rounded-card border border-line bg-surface p-4 shadow-soft">
-            <Input
-              id="barcode-manual"
-              label="바코드 번호 직접 입력"
-              value={barcodeManual}
-              onChange={(e) => setBarcodeManual(e.target.value)}
-              placeholder="예: 8801234567890"
-              inputMode="numeric"
-              autoComplete="off"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              className="mt-3 w-full"
-              onClick={handleBarcodeManualLookup}
-            >
-              번호로 찾기
-            </Button>
-          </section>
-        )}
-
         {/* 촬영·선택 이미지 미리보기 + 인식 CTA */}
         {previewUrl && (
           <section className="mt-4 overflow-hidden rounded-card border border-line bg-surface shadow-soft">
@@ -501,14 +421,9 @@ export function RecognizePage() {
           </section>
         )}
 
-        {/* 에러 / 목업 안내 */}
+        {/* 에러 안내 */}
         {errorMessage && (
-          <p
-            className={`mt-4 rounded-input px-4 py-3 text-sm ${
-              usedMock ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'
-            }`}
-            role="status"
-          >
+          <p className="mt-4 rounded-input bg-danger/10 px-4 py-3 text-sm text-danger" role="status">
             {errorMessage}
           </p>
         )}
