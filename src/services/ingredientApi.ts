@@ -20,6 +20,7 @@ import type {
   IngredientDetailResponse,
   IngredientSummaryResponse,
   Page,
+  RecognizeMode,
 } from '@/types/features';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
@@ -149,10 +150,16 @@ export async function getSummary(): Promise<IngredientSummaryResponse> {
 
 /**
  * POST /api/v1/ingredients/recognitions
- * multipart 필드명 `image`. 응답 후보는 등록 화면 프리필에 사용.
+ * multipart: `image`(필수) + `mode`(`photo`|`barcode`|`receipt`).
+ * mode 를 빼면 서버 기본값이 photo 이므로 탭별 호출 시 반드시 함께 보낸다.
+ * 응답 후보는 등록 화면 프리필에 사용.
  */
-export async function recognize(image: File): Promise<CameraRecognizeResponse> {
+export async function recognize(
+  image: File,
+  mode: RecognizeMode,
+): Promise<CameraRecognizeResponse> {
   const formData = new FormData();
   formData.append('image', image);
+  formData.append('mode', mode);
   return postMultipart<CameraRecognizeResponse>('/ingredients/recognitions', formData);
 }
